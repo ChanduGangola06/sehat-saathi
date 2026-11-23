@@ -1,10 +1,10 @@
 # syntax=docker/dockerfile:1
-FROM node:22-alpine AS deps
+FROM node:26-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-FROM node:22-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 # NEXT_PUBLIC_* values are compiled into the browser bundle, so they are build arguments.
 ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
@@ -17,7 +17,7 @@ COPY . .
 # The real CLERK_SECRET_KEY is only provided at runtime; the build just needs a placeholder.
 RUN CLERK_SECRET_KEY=sk_test_build_placeholder npm run build
 
-FROM node:22-alpine
+FROM node:26-alpine
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 HOSTNAME=0.0.0.0 PORT=3000
 COPY --from=build /app/public ./public
