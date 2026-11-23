@@ -1,0 +1,22 @@
+# Production: one domain with automatic HTTPS. Web app and API share the origin (no CORS, WebSockets just work).
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+# In .env set DOMAIN=app.example.com, FRONTEND_ORIGIN=https://app.example.com, NEXT_PUBLIC_API_URL=https://app.example.com
+services:
+  backend:
+    ports: !reset []
+  frontend:
+    ports: !reset []
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on: [backend, frontend]
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN in .env}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+volumes:
+  caddy-data:

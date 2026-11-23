@@ -1,0 +1,25 @@
+# secrets: never commit real keys (use the *.env.example files)
+.env
+.env.*
+!.env.example
+.clerk/
+
+# build output and dependencies
+target/
+node_modules/
+.next/
+.next-*/
+out/
+coverage/
+
+# local data
+*.db
+*.db-shm
+*.db-wal
+
+# editors, OS, tooling
+.DS_Store
+.idea/
+.vscode/
+.claude/
+*.log

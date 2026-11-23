@@ -1,0 +1,25 @@
+name: Deploy
+# Manual: rebuilds and restarts the whole project (backend + frontend + HTTPS proxy) on your server over SSH.
+# Needs secrets SSH_HOST, SSH_USER, SSH_KEY and the project cloned at DEPLOY_PATH (variable, default ~/sehat-saathi) with a .env.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency: deploy
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Deploy over SSH
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          DEPLOY_PATH: ${{ vars.DEPLOY_PATH || '~/sehat-saathi' }}
+        run: |
+          install -m 600 /dev/null key
+          printf '%s\n' "$SSH_KEY" > key
+          ssh -i key -o StrictHostKeyChecking=accept-new "$SSH_USER@$SSH_HOST" \
+            "cd $DEPLOY_PATH && git pull --ff-only && docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build"

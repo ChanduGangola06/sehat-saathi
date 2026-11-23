@@ -1,0 +1,48 @@
+# Whole project in one command:  cp .env.example .env  &&  docker compose up --build
+# Optional local AI fallback:    docker compose --profile local-ai up --build
+services:
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:3000}
+      CLERK_ISSUER: ${CLERK_ISSUER:?set CLERK_ISSUER in .env}
+      CLERK_SECRET_KEY: ${CLERK_SECRET_KEY:?set CLERK_SECRET_KEY in .env}
+      CLERK_WEBHOOK_SECRET: ${CLERK_WEBHOOK_SECRET:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      AI_PROVIDERS: ${AI_PROVIDERS:-gemini,ollama}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434/v1}
+      BILLING_DEV_MODE: ${BILLING_DEV_MODE:-false}
+      BILLING_WEBHOOK_SECRET: ${BILLING_WEBHOOK_SECRET:-}
+    volumes:
+      - sehat-data:/data
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:?set NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY in .env}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080}
+    restart: unless-stopped
+    environment:
+      CLERK_SECRET_KEY: ${CLERK_SECRET_KEY:?set CLERK_SECRET_KEY in .env}
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+  # Free local fallback model server. Pull the models once:
+  #   docker compose --profile local-ai exec ollama ollama pull llama3.1 && ... pull nomic-embed-text
+  ollama:
+    profiles: ["local-ai"]
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    volumes:
+      - ollama-models:/root/.ollama
+
+volumes:
+  sehat-data:
+  ollama-models:
