@@ -5,7 +5,7 @@
 **A bilingual (English + Hindi) AI health assistant you can type to, or just talk to, like a phone call.**
 
 [![CI](../../actions/workflows/ci.yml/badge.svg)](../../actions/workflows/ci.yml)
-[![Watchers](https://img.shields.io/github/watchers/chandugangola/sehat-saathi?style=social)](../../watchers)
+[![Watchers](https://img.shields.io/github/watchers/ChanduGangola06/sehat-saathi?style=social)](../../watchers)
 ![Rust](https://img.shields.io/badge/backend-Rust%20%2B%20axum-dea584?logo=rust)
 ![Next.js](https://img.shields.io/badge/frontend-Next.js%2016-000?logo=nextdotjs)
 ![Auth](https://img.shields.io/badge/auth-Clerk-6c47ff)
